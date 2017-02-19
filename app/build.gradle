@@ -36,5 +36,7 @@ dependencies {
     compile 'com.android.support:design:25.1.1'
     testCompile 'junit:junit:4.12'
 
-    compile 'com.auth0.android:lock:2.0.0'
+    compile 'com.auth0.android:lock:2.3.0'
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:converter-moshi:2.1.0'
 }
