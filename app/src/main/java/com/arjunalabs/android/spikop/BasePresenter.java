@@ -6,7 +6,7 @@ package com.arjunalabs.android.spikop;
 
 public interface BasePresenter {
 
-    void subscribe();
+    void start();
 
-    void unsubscribe();
+    void end();
 }

@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SpikDBHelper extends SQLiteOpenHelper {
 
     public static final String COLUMN_ID = "_id";
+    public static final String COLUMN_REMOTE_ID = "id";
     public static final String COLUMN_CREATED_AT = "created_at";
 
     public static final String TABLE_SPIKS = "spiks";
@@ -26,12 +27,14 @@ public class SpikDBHelper extends SQLiteOpenHelper {
     // Database creation sql statement
     private static final String CREATE_SPIKS = "create table "
             + TABLE_SPIKS + "( " + COLUMN_ID  + " integer primary key autoincrement, "
+            + "" + COLUMN_REMOTE_ID + " integer not null, "
             + "" + SPIKS_COLUMN_CONTENT + " text not null, "
             + "" + COLUMN_CREATED_AT + " INTEGER NOT NULL DEFAULT (strftime('%s','now'))"
             + ");";
 
     private static final String CREATE_HASHTAGS = "create table "
             + TABLE_HASHTAGS + "( " + COLUMN_ID  + " integer primary key autoincrement, "
+            + "" + COLUMN_REMOTE_ID + " integer not null, "
             + "" + HASHTAGS_COLUMN_NAME + " text not null, "
             + "" + COLUMN_CREATED_AT + " INTEGER NOT NULL DEFAULT (strftime('%s','now'))"
             + ");";

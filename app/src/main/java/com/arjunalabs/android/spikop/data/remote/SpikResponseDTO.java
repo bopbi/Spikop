@@ -1,14 +1,16 @@
-package com.arjunalabs.android.spikop.data;
+package com.arjunalabs.android.spikop.data.remote;
+
+import java.util.Date;
 
 /**
- * Created by bobbyadiprabowo on 06/02/17.
+ * Created by bobbyadiprabowo on 19/02/17.
  */
 
-public class Timeline {
+public class SpikResponseDTO {
 
     private int id;
     private String content;
-    private int createdAt;
+    private Date created_at;
 
     public int getId() {
         return id;
@@ -26,11 +28,11 @@ public class Timeline {
         this.content = content;
     }
 
-    public int getCreatedAt() {
-        return createdAt;
+    public Date getCreated_at() {
+        return created_at;
     }
 
-    public void setCreatedAt(int createdAt) {
-        this.createdAt = createdAt;
+    public void setCreated_at(Date created_at) {
+        this.created_at = created_at;
     }
 }

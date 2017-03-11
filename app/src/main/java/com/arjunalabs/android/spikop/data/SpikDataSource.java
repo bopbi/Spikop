@@ -8,8 +8,13 @@ import java.util.List;
 
 public interface SpikDataSource {
 
-    List<Timeline> getAllSpiks();
+    List<Spik> getAllSpiks(boolean refresh, long lastId);
 
-    Timeline getSpikById(long id);
+    List<Hashtag> getAllHashtags();
 
+    Spik getSpikById(long id);
+
+    long addSpiks(List<Spik> spikList);
+
+    long addSpik(Spik spik);
 }

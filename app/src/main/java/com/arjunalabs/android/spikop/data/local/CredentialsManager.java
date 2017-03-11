@@ -1,4 +1,4 @@
-package com.arjunalabs.android.spikop.utils;
+package com.arjunalabs.android.spikop.data.local;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,15 +12,20 @@ import com.auth0.android.result.Credentials;
 
 public class CredentialsManager {
 
+    final static String REFRESH_TOKEN = "AUTH0_REFRESH_TOKEN";
+    final static String ACCESS_TOKEN = "AUTH0_ACCESS_TOKEN";
+    final static String ID_TOKEN = "AUTH0_ID_TOKEN";
+    final static String CREDENTIAL_TYPE = "AUTH0_CREDENTIAL_TYPE";
+
     public static void saveCredentials(Context context, Credentials credentials){
         SharedPreferences sharedPref = context.getSharedPreferences(
                 context.getString(R.string.auth0_preferences), Context.MODE_PRIVATE);
 
         sharedPref.edit()
-                .putString(Constants.ID_TOKEN, credentials.getIdToken())
-                .putString(Constants.REFRESH_TOKEN, credentials.getRefreshToken())
-                .putString(Constants.ACCESS_TOKEN, credentials.getAccessToken())
-                .putString(Constants.CREDENTIAL_TYPE, credentials.getType())
+                .putString(ID_TOKEN, credentials.getIdToken())
+                .putString(REFRESH_TOKEN, credentials.getRefreshToken())
+                .putString(ACCESS_TOKEN, credentials.getAccessToken())
+                .putString(CREDENTIAL_TYPE, credentials.getType())
                 .apply();
     }
 
@@ -29,10 +34,10 @@ public class CredentialsManager {
                 context.getString(R.string.auth0_preferences), Context.MODE_PRIVATE);
 
         Credentials credentials = new Credentials(
-                sharedPref.getString(Constants.ID_TOKEN, null),
-                sharedPref.getString(Constants.ACCESS_TOKEN, null),
-                sharedPref.getString(Constants.CREDENTIAL_TYPE, null),
-                sharedPref.getString(Constants.REFRESH_TOKEN, null));
+                sharedPref.getString(ID_TOKEN, null),
+                sharedPref.getString(ACCESS_TOKEN, null),
+                sharedPref.getString(CREDENTIAL_TYPE, null),
+                sharedPref.getString(REFRESH_TOKEN, null));
 
         return credentials;
     }
@@ -42,14 +47,11 @@ public class CredentialsManager {
                 context.getString(R.string.auth0_preferences), Context.MODE_PRIVATE);
 
         sharedPref.edit()
-                .putString(Constants.ID_TOKEN, null)
-                .putString(Constants.REFRESH_TOKEN, null)
-                .putString(Constants.ACCESS_TOKEN, null)
-                .putString(Constants.CREDENTIAL_TYPE, null)
+                .putString(ID_TOKEN, null)
+                .putString(REFRESH_TOKEN, null)
+                .putString(ACCESS_TOKEN, null)
+                .putString(CREDENTIAL_TYPE, null)
                 .apply();
     }
-
-
-
 
 }

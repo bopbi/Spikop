@@ -27,12 +27,40 @@ public class SpikRepository implements SpikDataSource {
     }
 
     @Override
-    public List<Timeline> getAllSpiks() {
+    public List<Spik> getAllSpiks(boolean refresh, long lastId) {
+        List<Spik> spikList;
+        if (refresh) {
+            spikList = remoteSpikDataSource.getAllSpiks(refresh, lastId);
+            if (spikList == null) {
+                return null;
+            }
+            localSpikDataSource.addSpiks(spikList);
+            spikList = localSpikDataSource.getAllSpiks(refresh, lastId);
+        } else {
+            spikList = localSpikDataSource.getAllSpiks(refresh, lastId);
+        }
+        return spikList;
+    }
+
+    @Override
+    public List<Hashtag> getAllHashtags() {
         return null;
     }
 
     @Override
-    public Timeline getSpikById(long id) {
+    public Spik getSpikById(long id) {
         return null;
+    }
+
+    @Override
+    public long addSpiks(List<Spik> spikList) {
+        return 0;
+    }
+
+    @Override
+    public long addSpik(Spik spik) {
+        remoteSpikDataSource.addSpik(spik);
+        localSpikDataSource.addSpik(spik);
+        return 1;
     }
 }

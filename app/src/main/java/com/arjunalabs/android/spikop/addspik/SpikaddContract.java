@@ -11,9 +11,12 @@ public interface SpikaddContract {
 
     interface View extends BaseView<Presenter> {
 
+        void onSendButtonClick();
+
     }
 
     interface Presenter extends BasePresenter {
+
 
     }
 }

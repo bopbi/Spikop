@@ -24,15 +24,16 @@ public class SpikopProvider extends ContentProvider {
 
     public static final String AUTHORITY = "com.arjunalabs.android.spikop.contentprovider";
 
-    private static UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-
     private static final String BASE_URI = "content://"+ AUTHORITY + "/";
-    public static final String SPIKS_URI = BASE_URI + "spiks";
+    public static final String SPIKS_PATH = "spiks";
+    public static final String SPIKS_URI = BASE_URI + SPIKS_PATH;
+
 
     // content provider routing
+    private static UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static {
-        uriMatcher.addURI(AUTHORITY, SPIKS_URI, SPIKS);
-        uriMatcher.addURI(AUTHORITY, SPIKS_URI + "/#", SPIK_ID);
+        uriMatcher.addURI(AUTHORITY, SPIKS_PATH + "/#", SPIK_ID);
+        uriMatcher.addURI(AUTHORITY, SPIKS_PATH , SPIKS);
     }
 
     @Override
@@ -47,16 +48,16 @@ public class SpikopProvider extends ContentProvider {
 
         SQLiteDatabase sqLiteDatabase;
         Cursor cursor = null;
-
-        switch (uriMatcher.match(uri)) {
+        int uriType = uriMatcher.match(uri);
+        switch (uriType) {
             case SPIKS:
                 sqLiteDatabase = dbHelper.getReadableDatabase();
-                String query = "SELECT * FROM spiks ";
+                String query = "SELECT * FROM "+ SpikDBHelper.TABLE_SPIKS + " ORDER BY id DESC";
                 cursor = sqLiteDatabase.rawQuery(query, null);
                 break;
             case SPIK_ID:
                 sqLiteDatabase = dbHelper.getReadableDatabase();
-                query = "SELECT * FROM spiks WHERE _id = ? ";
+                query = "SELECT * FROM "+ SpikDBHelper.TABLE_SPIKS +" WHERE _id = ? ";
                 cursor = sqLiteDatabase.rawQuery(query, new String[] {uri.getLastPathSegment()});
                 break;
         }
@@ -75,18 +76,23 @@ public class SpikopProvider extends ContentProvider {
 
         SQLiteDatabase sqLiteDatabase;
         int count = 0;
-        switch (uriMatcher.match(uri)) {
+        int uriType = uriMatcher.match(uri);
+        switch (uriType) {
             case SPIKS:
                 sqLiteDatabase = dbHelper.getWritableDatabase();
                 sqLiteDatabase.beginTransaction();
                 for (ContentValues contentValue : values) {
-                    sqLiteDatabase.insert(SpikDBHelper.TABLE_SPIKS, null, contentValue);
-                    count++;
+                    long newId = sqLiteDatabase.insert(SpikDBHelper.TABLE_SPIKS, null, contentValue);
+                    if ( newId > 0) {
+                        count++;
+                    }
                 }
+                sqLiteDatabase.setTransactionSuccessful();
                 sqLiteDatabase.endTransaction();
                 break;
         }
 
+        getContext().getContentResolver().notifyChange(uri, null);
         return count;
     }
 
@@ -95,7 +101,8 @@ public class SpikopProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         SQLiteDatabase sqLiteDatabase;
         long id = 0;
-        switch (uriMatcher.match(uri)) {
+        int uriType = uriMatcher.match(uri);
+        switch (uriType) {
             case SPIKS:
                 sqLiteDatabase = dbHelper.getWritableDatabase();
                 sqLiteDatabase.beginTransaction();
@@ -112,7 +119,8 @@ public class SpikopProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase sqLiteDatabase;
         int count = 0;
-        switch (uriMatcher.match(uri)) {
+        int uriType = uriMatcher.match(uri);
+        switch (uriType) {
             case SPIKS:
                 sqLiteDatabase = dbHelper.getWritableDatabase();
                 sqLiteDatabase.beginTransaction();

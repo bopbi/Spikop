@@ -2,7 +2,7 @@ package com.arjunalabs.android.spikop.spiks;
 
 import com.arjunalabs.android.spikop.BasePresenter;
 import com.arjunalabs.android.spikop.BaseView;
-import com.arjunalabs.android.spikop.data.Timeline;
+import com.arjunalabs.android.spikop.data.Spik;
 
 import java.util.List;
 
@@ -14,13 +14,23 @@ public interface SpiksContract {
 
     interface View extends BaseView<Presenter> {
 
-        void setSpiksList(List<Timeline> timelineList);
+        void setSpiksList(List<Spik> spikList);
 
+        void showAddSpik();
+
+        void start();
+
+        void resume();
+
+        void runFetchService();
     }
 
     interface Presenter extends BasePresenter {
 
-        void showAddSpik();
+        void fetchTimeline();
 
+        List<Spik> getTimeline();
+
+        boolean getTimelineFetchStatus();
     }
 }

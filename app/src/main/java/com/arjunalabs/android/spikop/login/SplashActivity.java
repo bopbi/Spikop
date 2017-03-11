@@ -7,52 +7,56 @@ import android.widget.Toast;
 
 import com.arjunalabs.android.spikop.R;
 import com.arjunalabs.android.spikop.spiks.SpiksActivity;
-import com.arjunalabs.android.spikop.utils.CredentialsManager;
+import com.arjunalabs.android.spikop.data.local.CredentialsManager;
 import com.auth0.android.Auth0;
 import com.auth0.android.authentication.AuthenticationAPIClient;
-import com.auth0.android.authentication.AuthenticationException;
-import com.auth0.android.callback.BaseCallback;
 import com.auth0.android.lock.AuthenticationCallback;
 import com.auth0.android.lock.Lock;
 import com.auth0.android.lock.LockCallback;
 import com.auth0.android.lock.utils.LockException;
 import com.auth0.android.result.Credentials;
-import com.auth0.android.result.UserProfile;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by bobbyadiprabowo on 04/02/17.
  */
 
-public class LoginActivity extends Activity {
+public class SplashActivity extends Activity {
 
     private Lock mLock;
+    private AuthenticationAPIClient apiClient;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Auth0 auth0 = new Auth0(getString(R.string.auth0_client_id), getString(R.string.auth0_domain));
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("scope", "openid offline_access");
+        parameters.put("device", UUID.randomUUID().toString());
         mLock = Lock.newBuilder(auth0, mCallback)
-                .withAuthenticationParameters(parameters)
                 //Add parameters to the build
+                .withAuthenticationParameters(parameters)
                 .build(this);
 
         if (CredentialsManager.getCredentials(this).getIdToken() == null) {
             startActivity(mLock.newIntent(this));
             return;
+        } else {
+            startActivity(new Intent(getApplicationContext(), SpiksActivity.class));
+            finish();
         }
-
-        AuthenticationAPIClient aClient = new AuthenticationAPIClient(auth0);
-        aClient.userInfo(CredentialsManager.getCredentials(this).getIdToken())
+        // decided later
+        /*
+        apiClient = new AuthenticationAPIClient(auth0);
+        apiClient.userInfo(CredentialsManager.getCredentials(this).getAccessToken())
                 .start(new BaseCallback<UserProfile, AuthenticationException>() {
                     @Override
                     public void onSuccess(final UserProfile payload) {
-                        LoginActivity.this.runOnUiThread(new Runnable() {
+                        SplashActivity.this.runOnUiThread(new Runnable() {
                             public void run() {
-                                Toast.makeText(LoginActivity.this, "Automatic Login Success", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SplashActivity.this, "Automatic Login Success", Toast.LENGTH_SHORT).show();
                             }
                         });
                         startActivity(new Intent(getApplicationContext(), SpiksActivity.class));
@@ -61,15 +65,16 @@ public class LoginActivity extends Activity {
 
                     @Override
                     public void onFailure(AuthenticationException error) {
-                        LoginActivity.this.runOnUiThread(new Runnable() {
+                        SplashActivity.this.runOnUiThread(new Runnable() {
                             public void run() {
-                                Toast.makeText(LoginActivity.this, "Session Expired, please Log In", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SplashActivity.this, "Session Expired, please Log In Again", Toast.LENGTH_SHORT).show();
                             }
                         });
                         CredentialsManager.deleteCredentials(getApplicationContext());
-                        startActivity(mLock.newIntent(LoginActivity.this));
+                        startActivity(mLock.newIntent(SplashActivity.this));
                     }
                 });
+          */
     }
 
     @Override
