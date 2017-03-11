@@ -14,7 +14,7 @@ public interface SpikDataSource {
 
     Spik getSpikById(long id);
 
-    long addSpiks(List<Spik> spikList);
+    List<Spik> addSpiks(List<Spik> spikList);
 
-    long addSpik(Spik spik);
+    Spik addSpik(Spik spik);
 }

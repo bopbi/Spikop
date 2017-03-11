@@ -4,12 +4,15 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.arjunalabs.android.spikop.SpikApplication;
 import com.arjunalabs.android.spikop.data.Spik;
 import com.arjunalabs.android.spikop.data.SpikRepository;
+import com.arjunalabs.android.spikop.spiks.SpiksService;
 import com.arjunalabs.android.spikop.utils.Constant;
 
+import java.util.PriorityQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
@@ -20,13 +23,13 @@ public class SpikaddService extends Service {
 
     private SpikRepository spikRepository;
     private boolean isRunning = false;
-    private LinkedBlockingDeque<String> stringQueue;
+    private PriorityQueue<String> stringQueue;
 
     @Override
     public void onCreate() {
         super.onCreate();
         spikRepository = ((SpikApplication)getApplication()).getSpikRepository();
-        stringQueue = new LinkedBlockingDeque<>();
+        stringQueue = new PriorityQueue<>();
     }
 
     @Nullable
@@ -51,11 +54,18 @@ public class SpikaddService extends Service {
         Thread postThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (stringQueue != null) {
+                while (stringQueue.size() > 0) {
                     Spik spik = new Spik();
                     spik.setContent(stringQueue.peek());
-                    spikRepository.addSpik(spik);
-                    stringQueue.poll();
+                    Spik spikResult = spikRepository.addSpik(spik);
+                    if (spikResult == null) {
+
+                    } else {
+                        Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
+                        LocalBroadcastManager.getInstance(SpikaddService.this).sendBroadcast(i);
+                    }
+                    stringQueue.remove();
+
                 }
                 isRunning = false;
                 stopSelf();

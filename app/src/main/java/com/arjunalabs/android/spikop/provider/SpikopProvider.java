@@ -105,9 +105,7 @@ public class SpikopProvider extends ContentProvider {
         switch (uriType) {
             case SPIKS:
                 sqLiteDatabase = dbHelper.getWritableDatabase();
-                sqLiteDatabase.beginTransaction();
                 id = sqLiteDatabase.insert(SpikDBHelper.TABLE_SPIKS, null, values);
-                sqLiteDatabase.endTransaction();
                 break;
         }
 

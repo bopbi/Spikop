@@ -53,10 +53,7 @@ public class SpikRemoteDataSource implements SpikDataSource {
 
             for (SpikResponseDTO spikResponseDTO:
                  responseDTOList.getSpiks()) {
-                Spik spik = new Spik();
-                spik.setRemoteId(spikResponseDTO.getId());
-                spik.setContent(spikResponseDTO.getContent());
-                spik.setCreatedAt(spikResponseDTO.getCreated_at().getTime());
+                Spik spik = new Spik(spikResponseDTO);
                 spiks.add(spik);
             }
 
@@ -78,12 +75,12 @@ public class SpikRemoteDataSource implements SpikDataSource {
     }
 
     @Override
-    public long addSpiks(List<Spik> spikList) {
-        return 0;
+    public List<Spik> addSpiks(List<Spik> spikList) {
+        return null;
     }
 
     @Override
-    public long addSpik(Spik spik) {
+    public Spik addSpik(Spik spik) {
         Call<SpikResponseDTO> spikCall = networkAuthService.getSpikopService().addSpik(spik.getContent());
         Response<SpikResponseDTO> spikResponseDTO = null;
         try {
@@ -93,14 +90,15 @@ public class SpikRemoteDataSource implements SpikDataSource {
         }
 
         if (spikResponseDTO == null) {
-            return 0;
+            return null;
         }
 
         SpikResponseDTO responseDTO = spikResponseDTO.body();
+
         if (responseDTO == null) {
-            return 0;
+            return null;
         }
 
-        return 1;
+        return new Spik(responseDTO);
     }
 }

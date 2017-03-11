@@ -53,14 +53,17 @@ public class SpikRepository implements SpikDataSource {
     }
 
     @Override
-    public long addSpiks(List<Spik> spikList) {
-        return 0;
+    public List<Spik> addSpiks(List<Spik> spikList) {
+        return null;
     }
 
     @Override
-    public long addSpik(Spik spik) {
-        remoteSpikDataSource.addSpik(spik);
-        localSpikDataSource.addSpik(spik);
-        return 1;
+    public Spik addSpik(Spik spik) {
+        Spik newSpik = remoteSpikDataSource.addSpik(spik);
+        if (newSpik == null) {
+            return null;
+        }
+        return localSpikDataSource.addSpik(newSpik);
+
     }
 }

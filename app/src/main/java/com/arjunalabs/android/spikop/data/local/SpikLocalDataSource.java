@@ -85,7 +85,7 @@ public class SpikLocalDataSource implements SpikDataSource {
     }
 
     @Override
-    public long addSpiks(List<Spik> spikList) {
+    public List<Spik> addSpiks(List<Spik> spikList) {
         List<ContentValues> contentValues = new ArrayList<>(spikList.size());
 
         for (Spik spik : spikList) {
@@ -93,20 +93,21 @@ public class SpikLocalDataSource implements SpikDataSource {
             cv.put(SpikDBHelper.COLUMN_REMOTE_ID, spik.getRemoteId());
             cv.put(SpikDBHelper.SPIKS_COLUMN_CONTENT, spik.getContent());
             cv.put(SpikDBHelper.COLUMN_CREATED_AT, spik.getCreatedAt());
-            cv.put(SpikDBHelper.COLUMN_REMOTE_ID, spik.getRemoteId());
             contentValues.add(cv);
         }
-        return context.getContentResolver().bulkInsert(Uri.parse(SpikopProvider.SPIKS_URI), contentValues.toArray(new ContentValues[spikList.size()]));
+        context.getContentResolver().bulkInsert(Uri.parse(SpikopProvider.SPIKS_URI), contentValues.toArray(new ContentValues[spikList.size()]));
+
+        return spikList;
     }
 
     @Override
-    public long addSpik(Spik spik) {
+    public Spik addSpik(Spik spik) {
         ContentValues cv = new ContentValues();
         cv.put(SpikDBHelper.COLUMN_REMOTE_ID, spik.getRemoteId());
         cv.put(SpikDBHelper.SPIKS_COLUMN_CONTENT, spik.getContent());
         cv.put(SpikDBHelper.COLUMN_CREATED_AT, spik.getCreatedAt());
-        cv.put(SpikDBHelper.COLUMN_REMOTE_ID, spik.getRemoteId());
 
-        return Integer.parseInt(context.getContentResolver().insert(Uri.parse(SpikopProvider.SPIKS_URI),cv).getLastPathSegment());
+        context.getContentResolver().insert(Uri.parse(SpikopProvider.SPIKS_URI),cv);
+        return spik;
     }
 }

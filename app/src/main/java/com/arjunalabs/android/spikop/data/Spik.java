@@ -1,5 +1,7 @@
 package com.arjunalabs.android.spikop.data;
 
+import com.arjunalabs.android.spikop.data.remote.SpikResponseDTO;
+
 /**
  * Created by bobbyadiprabowo on 06/02/17.
  */
@@ -10,6 +12,16 @@ public class Spik {
     private long remoteId;
     private String content;
     private long createdAt;
+
+    public Spik() {
+
+    }
+
+    public Spik(SpikResponseDTO spikResponseDTO) {
+        remoteId = spikResponseDTO.getId();
+        content = spikResponseDTO.getContent();
+        createdAt = spikResponseDTO.getCreated_at().getTime();
+    }
 
     public long getId() {
         return id;
