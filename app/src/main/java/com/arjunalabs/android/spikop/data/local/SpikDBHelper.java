@@ -17,6 +17,7 @@ public class SpikDBHelper extends SQLiteOpenHelper {
 
     public static final String TABLE_SPIKS = "spiks";
     public static final String SPIKS_COLUMN_CONTENT = "content";
+    public static final String SPIKS_COLUMN_FROM_TIMELINE = "from_timeline";
 
     public static final String TABLE_HASHTAGS = "hashtags";
     public static final String HASHTAGS_COLUMN_NAME = "name";
@@ -29,6 +30,7 @@ public class SpikDBHelper extends SQLiteOpenHelper {
             + TABLE_SPIKS + "( " + COLUMN_ID  + " integer primary key autoincrement, "
             + "" + COLUMN_REMOTE_ID + " integer not null, "
             + "" + SPIKS_COLUMN_CONTENT + " text not null, "
+            //+ "" + SPIKS_COLUMN_FROM_TIMELINE + " integer not null, "
             + "" + COLUMN_CREATED_AT + " INTEGER NOT NULL DEFAULT (strftime('%s','now'))"
             + ");";
 
@@ -42,7 +44,7 @@ public class SpikDBHelper extends SQLiteOpenHelper {
     public SpikDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION, new DatabaseErrorHandler() {
             @Override
-            public void onCorruption(SQLiteDatabase dbObj) {
+            public void onCorruption(SQLiteDatabase db) {
 
             }
         });

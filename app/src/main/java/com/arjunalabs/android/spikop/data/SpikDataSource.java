@@ -2,19 +2,21 @@ package com.arjunalabs.android.spikop.data;
 
 import java.util.List;
 
+import rx.Observable;
+
 /**
  * Created by bobbyadiprabowo on 06/02/17.
  */
 
 public interface SpikDataSource {
 
-    List<Spik> getAllSpiks(boolean refresh, long lastId);
+    Observable<List<Spik>> getAllSpiks(boolean refresh, long lastId);
 
-    List<Hashtag> getAllHashtags();
+    Observable<List<Hashtag>> getAllHashtags();
 
-    Spik getSpikById(long id);
+    Observable<Spik> getSpikById(long id);
 
-    List<Spik> addSpiks(List<Spik> spikList);
+    Observable<List<Spik>> addSpiks(List<Spik> spikList, boolean fromTimeline);
 
-    Spik addSpik(Spik spik);
+    Observable<Spik> addSpik(Spik spik, boolean fromRemote);
 }

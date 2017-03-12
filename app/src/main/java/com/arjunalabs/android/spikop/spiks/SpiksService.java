@@ -14,6 +14,12 @@ import com.arjunalabs.android.spikop.utils.Constant;
 
 import java.util.List;
 
+import rx.Observable;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func0;
+import rx.schedulers.Schedulers;
+
 /**
  * Created by bobbyadiprabowo on 19/02/17.
  */
@@ -47,26 +53,46 @@ public class SpiksService extends Service {
     }
 
     private void fetchTimeline() {
-        Thread fetchThread = new Thread(new Runnable() {
+        Observable.fromCallable(new Func0<Void>() {
             @Override
-            public void run() {
+            public Void call() {
                 TransactionManager.saveTimelineTransactionStatus(SpiksService.this, true);
-                Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
+                final Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
 
                 LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
 
                 long lastId = TransactionManager.getTimelineLastRemoteId(SpiksService.this);
-                List<Spik> spikList = spikRepository.getAllSpiks(true, lastId);
-                TransactionManager.saveTimelineTransactionStatus(SpiksService.this, false);
-                if (spikList != null) {
-                    TransactionManager.saveTimelineLastRemoteId(SpiksService.this, spikList.get(0).getRemoteId());
-                }
+                spikRepository.getAllSpiks(true, lastId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Observer<List<Spik>>() {
+                    @Override
+                    public void onCompleted() {
 
-                LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
-                isRunning = false;
-                stopSelf();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<Spik> spiks) {
+                        TransactionManager.saveTimelineTransactionStatus(SpiksService.this, false);
+                        if (spiks != null) {
+                            TransactionManager.saveTimelineLastRemoteId(SpiksService.this, spiks.get(0).getRemoteId());
+                        }
+
+                        LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
+                        isRunning = false;
+                        stopSelf();
+                    }
+                });
+                return null;
             }
-        });
-        fetchThread.start();
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
     }
 }

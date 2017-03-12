@@ -13,7 +13,12 @@ import com.arjunalabs.android.spikop.spiks.SpiksService;
 import com.arjunalabs.android.spikop.utils.Constant;
 
 import java.util.PriorityQueue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.Callable;
+
+import rx.Observable;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by bobbyadiprabowo on 28/02/17.
@@ -51,26 +56,46 @@ public class SpikaddService extends Service {
     }
 
     private void postTimeline() {
-        Thread postThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (stringQueue.size() > 0) {
-                    Spik spik = new Spik();
-                    spik.setContent(stringQueue.peek());
-                    Spik spikResult = spikRepository.addSpik(spik);
-                    if (spikResult == null) {
 
-                    } else {
+        Observable.from(stringQueue)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<String>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(String s) {
+                Spik spik = new Spik();
+                spik.setContent(stringQueue.peek());
+                spikRepository.addSpik(spik, false).subscribe(new Observer<Spik>() {
+                    @Override
+                    public void onCompleted() {
+                        isRunning = false;
+                        stopSelf();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(Spik spik) {
                         Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
                         LocalBroadcastManager.getInstance(SpikaddService.this).sendBroadcast(i);
+                        stringQueue.remove();
                     }
-                    stringQueue.remove();
-
-                }
-                isRunning = false;
-                stopSelf();
+                });
             }
         });
-        postThread.start();
+
     }
 }

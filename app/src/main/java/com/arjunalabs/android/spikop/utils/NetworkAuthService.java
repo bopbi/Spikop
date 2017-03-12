@@ -23,12 +23,14 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import retrofit2.Call;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
+import rx.Observable;
 
 /**
  * Created by bobbyadiprabowo on 12/02/17.
@@ -40,10 +42,10 @@ public class NetworkAuthService {
 
         @FormUrlEncoded
         @POST("api/spiks")
-        Call<SpikResponseDTO> addSpik(@Field("content") String content);
+        Observable<SpikResponseDTO> addSpik(@Field("content") String content);
 
         @GET("api/timeline")
-        Call<SpikListResponseDTO> getTimeline(@Query("since_id") long sinceId);
+        Observable<SpikListResponseDTO> getTimeline(@Query("since_id") long sinceId);
     }
 
     class AuthenticationInterceptor implements Interceptor {
@@ -129,6 +131,7 @@ public class NetworkAuthService {
                 .baseUrl("http://ec2-54-166-196-16.compute-1.amazonaws.com/")
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
 
         spikopService = retrofit.create(SpikopService.class);

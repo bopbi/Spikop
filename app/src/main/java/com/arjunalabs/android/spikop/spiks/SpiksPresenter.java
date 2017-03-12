@@ -6,6 +6,11 @@ import com.arjunalabs.android.spikop.data.local.TransactionManager;
 
 import java.util.List;
 
+import rx.Observable;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 /**
  * Created by bobbyadiprabowo on 06/02/17.
  */
@@ -23,7 +28,25 @@ public class SpiksPresenter implements SpiksContract.Presenter {
 
     @Override
     public void start() {
-        spikView.setSpiksList(getTimeline());
+        getTimeline()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<Spik>>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(List<Spik> spiks) {
+                spikView.setSpiksList(spiks);
+            }
+        });
     }
 
     @Override
@@ -37,7 +60,7 @@ public class SpiksPresenter implements SpiksContract.Presenter {
     }
 
     @Override
-    public List<Spik> getTimeline() {
+    public Observable<List<Spik>> getTimeline() {
         return spikRepository.getAllSpiks(false, 0); // get all
     }
 

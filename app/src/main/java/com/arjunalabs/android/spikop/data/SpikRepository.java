@@ -2,6 +2,9 @@ package com.arjunalabs.android.spikop.data;
 
 import java.util.List;
 
+import rx.Observable;
+import rx.functions.Func1;
+
 /**
  * Created by bobbyadiprabowo on 06/02/17.
  */
@@ -27,43 +30,50 @@ public class SpikRepository implements SpikDataSource {
     }
 
     @Override
-    public List<Spik> getAllSpiks(boolean refresh, long lastId) {
-        List<Spik> spikList;
+    public Observable<List<Spik>> getAllSpiks(final boolean refresh, final long lastId) {
         if (refresh) {
-            spikList = remoteSpikDataSource.getAllSpiks(refresh, lastId);
-            if (spikList == null) {
-                return null;
-            }
-            localSpikDataSource.addSpiks(spikList);
-            spikList = localSpikDataSource.getAllSpiks(refresh, lastId);
+            return remoteSpikDataSource
+                    .getAllSpiks(refresh, lastId)
+                    .switchMap(new Func1<List<Spik>, Observable<List<Spik>>>() {
+                        @Override
+                        public Observable<List<Spik>> call(List<Spik> spiks) {
+                            return localSpikDataSource.addSpiks(spiks, true);
+                        }
+                    })
+                    .switchMap(new Func1<List<Spik>, Observable<List<Spik>>>() {
+                        @Override
+                        public Observable<List<Spik>> call(List<Spik> spiks) {
+                            return localSpikDataSource.getAllSpiks(refresh, lastId);
+                        }
+                    });
         } else {
-            spikList = localSpikDataSource.getAllSpiks(refresh, lastId);
+            return localSpikDataSource.getAllSpiks(refresh, lastId);
         }
-        return spikList;
     }
 
     @Override
-    public List<Hashtag> getAllHashtags() {
+    public Observable<List<Hashtag>> getAllHashtags() {
         return null;
     }
 
     @Override
-    public Spik getSpikById(long id) {
+    public Observable<Spik> getSpikById(long id) {
         return null;
     }
 
     @Override
-    public List<Spik> addSpiks(List<Spik> spikList) {
+    public Observable<List<Spik>> addSpiks(List<Spik> spikList, boolean fromTimeline) {
         return null;
     }
 
     @Override
-    public Spik addSpik(Spik spik) {
-        Spik newSpik = remoteSpikDataSource.addSpik(spik);
-        if (newSpik == null) {
-            return null;
-        }
-        return localSpikDataSource.addSpik(newSpik);
-
+    public Observable<Spik> addSpik(Spik spik, final boolean fromTimeline) {
+        return remoteSpikDataSource.addSpik(spik, fromTimeline)
+                .switchMap(new Func1<Spik, Observable<Spik>>() {
+            @Override
+            public Observable<Spik> call(Spik newSpik) {
+                return localSpikDataSource.addSpik(newSpik, fromTimeline);
+            }
+        });
     }
 }

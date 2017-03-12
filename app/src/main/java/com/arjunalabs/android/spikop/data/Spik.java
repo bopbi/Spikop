@@ -12,15 +12,17 @@ public class Spik {
     private long remoteId;
     private String content;
     private long createdAt;
+    private boolean fromTimeline;
 
     public Spik() {
 
     }
 
-    public Spik(SpikResponseDTO spikResponseDTO) {
+    public Spik(SpikResponseDTO spikResponseDTO, boolean fromTimeline) {
         remoteId = spikResponseDTO.getId();
         content = spikResponseDTO.getContent();
         createdAt = spikResponseDTO.getCreated_at().getTime();
+        this.fromTimeline = fromTimeline;
     }
 
     public long getId() {
@@ -53,5 +55,13 @@ public class Spik {
 
     public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean getFromTimeline() {
+        return fromTimeline;
+    }
+
+    public void setFromTimeline(boolean fromTimeline) {
+        this.fromTimeline = fromTimeline;
     }
 }

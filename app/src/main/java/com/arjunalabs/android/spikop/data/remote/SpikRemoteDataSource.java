@@ -13,6 +13,10 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Response;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by bobbyadiprabowo on 06/02/17.
@@ -36,69 +40,68 @@ public class SpikRemoteDataSource implements SpikDataSource {
     }
 
     @Override
-    public List<Spik> getAllSpiks(boolean refresh, long lastId) {
-        Call<SpikListResponseDTO> listCall = networkAuthService.getSpikopService().getTimeline(lastId);
-        List<Spik> spiks = null;
-        try {
-            Response<SpikListResponseDTO> listResponse = listCall.execute();
-            SpikListResponseDTO responseDTOList = listResponse.body();
-            if (responseDTOList == null) {
-                return null;
-            }
+    public Observable<List<Spik>> getAllSpiks(boolean refresh, long lastId) {
 
-            if (responseDTOList.getSpiks() == null) {
-                return null;
-            }
-            spiks = new ArrayList<>(responseDTOList.getSpiks().size());
+        return networkAuthService
+                .getSpikopService()
+                .getTimeline(lastId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(new Func1<Throwable, Observable<? extends SpikListResponseDTO>>() {
+                    @Override
+                    public Observable<? extends SpikListResponseDTO> call(Throwable throwable) {
+                        return null;
+                    }
+                })
+                .map(new Func1<SpikListResponseDTO, List<Spik>>() {
 
-            for (SpikResponseDTO spikResponseDTO:
-                 responseDTOList.getSpiks()) {
-                Spik spik = new Spik(spikResponseDTO);
-                spiks.add(spik);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return spiks;
+                    @Override
+                    public List<Spik> call(SpikListResponseDTO spikListResponseDTO) {
+                        List<Spik> spiks = new ArrayList<>(spikListResponseDTO.getSpiks().size());
+                        for (SpikResponseDTO spikResponseDTO:
+                                spikListResponseDTO.getSpiks()) {
+                            Spik spik = new Spik(spikResponseDTO, true);
+                            spiks.add(spik);
+                        }
+                        return spiks;
+                    }
+                });
     }
 
     @Override
-    public List<Hashtag> getAllHashtags() {
+    public Observable<List<Hashtag>> getAllHashtags() {
         return null;
     }
 
     @Override
-    public Spik getSpikById(long id) {
+    public Observable<Spik> getSpikById(long id) {
         return null;
     }
 
     @Override
-    public List<Spik> addSpiks(List<Spik> spikList) {
+    public Observable<List<Spik>> addSpiks(List<Spik> spikList, boolean fromTimeline) {
         return null;
     }
 
     @Override
-    public Spik addSpik(Spik spik) {
-        Call<SpikResponseDTO> spikCall = networkAuthService.getSpikopService().addSpik(spik.getContent());
-        Response<SpikResponseDTO> spikResponseDTO = null;
-        try {
-            spikResponseDTO = spikCall.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Observable<Spik> addSpik(Spik spik, boolean fromTimeline) {
+        return networkAuthService
+                .getSpikopService()
+                .addSpik(spik.getContent())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .onErrorResumeNext(new Func1<Throwable, Observable<? extends SpikResponseDTO>>() {
+                    @Override
+                    public Observable<? extends SpikResponseDTO> call(Throwable throwable) {
+                        return null;
+                    }
+                })
+                .map(new Func1<SpikResponseDTO, Spik>() {
 
-        if (spikResponseDTO == null) {
-            return null;
-        }
-
-        SpikResponseDTO responseDTO = spikResponseDTO.body();
-
-        if (responseDTO == null) {
-            return null;
-        }
-
-        return new Spik(responseDTO);
+                    @Override
+                    public Spik call(SpikResponseDTO spikResponseDTO) {
+                        return new Spik(spikResponseDTO, false);
+                    }
+                });
     }
 }

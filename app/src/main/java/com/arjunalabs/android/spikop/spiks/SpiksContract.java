@@ -6,6 +6,8 @@ import com.arjunalabs.android.spikop.data.Spik;
 
 import java.util.List;
 
+import rx.Observable;
+
 /**
  * Created by bobbyadiprabowo on 04/02/17.
  */
@@ -29,7 +31,7 @@ public interface SpiksContract {
 
         void fetchTimeline();
 
-        List<Spik> getTimeline();
+        Observable<List<Spik>> getTimeline();
 
         boolean getTimelineFetchStatus();
     }
