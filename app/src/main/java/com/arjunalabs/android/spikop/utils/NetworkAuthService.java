@@ -14,14 +14,17 @@ import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 
+import okhttp3.Authenticator;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import retrofit2.Call;
+import okhttp3.Route;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -48,16 +51,71 @@ public class NetworkAuthService {
         Observable<SpikListResponseDTO> getTimeline(@Query("since_id") long sinceId);
     }
 
+    /*
+    handle 401 when token is expired
+     */
+    class SpikAuthenticator implements Authenticator {
+
+        private Credentials credentials;
+        private Context context;
+        private String clientId;
+        private String auth0Domain;
+
+        public SpikAuthenticator(Context context) {
+            clientId = context.getString(R.string.auth0_client_id);
+            auth0Domain = context.getString(R.string.auth0_domain);
+            this.context = context;
+        }
+
+        @Override
+        public Request authenticate(Route route, Response response) throws IOException {
+
+            MediaType JSON
+                    = MediaType.parse("application/json; charset=utf-8");
+
+            OkHttpClient client = new OkHttpClient();
+
+            DelegationRequestDTO delegationRequestDto = new DelegationRequestDTO();
+            delegationRequestDto.setClient_id(clientId);
+            delegationRequestDto.setApi_type(credentials.getType());
+            delegationRequestDto.setId_token(credentials.getIdToken());
+
+            Gson gson = new Gson();
+            String json = gson.toJson(delegationRequestDto, DelegationRequestDTO.class);
+
+            RequestBody body = RequestBody.create(JSON, json);
+            Request tokenRequest = new Request.Builder()
+                    .url("https://"+auth0Domain+"/delegation")
+                    .post(body)
+                    .build();
+            Response tokenResponse = client.newCall(tokenRequest).execute();
+            String res = tokenResponse.body().string();
+
+            Delegation delegation = gson.fromJson(res, Delegation.class);
+
+            Credentials newCredentials = new Credentials(delegation.getIdToken()
+                    , credentials.getAccessToken()
+                    , credentials.getType()
+                    , credentials.getRefreshToken());
+
+            credentials = newCredentials;
+
+            if (context != null) {
+                CredentialsManager.saveCredentials(context, credentials);
+            }
+
+            return response.request().newBuilder()
+                    .header("Authorization", "Bearer "+ credentials.getIdToken() )
+                    .build();
+        }
+    }
+
     class AuthenticationInterceptor implements Interceptor {
 
         private Credentials credentials;
-        private String clientId;
-        private String auth0Domain;
         private Context context;
 
         public AuthenticationInterceptor(Context context) {
-            clientId = context.getString(R.string.auth0_client_id);
-            auth0Domain = context.getString(R.string.auth0_domain);
             this.context = context;
         }
 
@@ -74,53 +132,20 @@ public class NetworkAuthService {
             Request request = requestBuilder.build();
             Response response = chain.proceed(request);
 
-            if (response.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                MediaType JSON
-                        = MediaType.parse("application/json; charset=utf-8");
-
-                OkHttpClient client = new OkHttpClient();
-
-                DelegationRequestDTO delegationRequestDto = new DelegationRequestDTO();
-                delegationRequestDto.setClient_id(clientId);
-                delegationRequestDto.setApi_type(credentials.getType());
-                delegationRequestDto.setId_token(credentials.getIdToken());
-
-                Gson gson = new Gson();
-                String json = gson.toJson(delegationRequestDto, DelegationRequestDTO.class);
-
-                RequestBody body = RequestBody.create(JSON, json);
-                Request tokenRequest = new Request.Builder()
-                        .url("https://"+auth0Domain+"/delegation")
-                        .post(body)
-                        .build();
-                Response tokenResponse = client.newCall(tokenRequest).execute();
-                String res = tokenResponse.body().string();
-
-                Delegation delegation = gson.fromJson(res, Delegation.class);
-
-                Credentials newCredentials = new Credentials(delegation.getIdToken(), credentials.getAccessToken(), credentials.getType(), credentials.getRefreshToken());
-                credentials = newCredentials;
-
-                if (context != null) {
-                    CredentialsManager.saveCredentials(context, credentials);
-                }
-
-                // retry the request again
-                // Request customization: add request headers
-                requestBuilder = original.newBuilder()
-                        .header("Authorization", "Bearer "+ credentials.getIdToken() ); // <-- this is the important line
-
-                request = requestBuilder.build();
-                response = chain.proceed(request);
-            }
             return response;
         }
     }
     private SpikopService spikopService;
 
     private NetworkAuthService(Context context) {
+
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .authenticator(new SpikAuthenticator(context))
                 .addInterceptor(new AuthenticationInterceptor(context))
+                .addInterceptor(interceptor)
                 .build();
 
         Gson gson = new GsonBuilder()

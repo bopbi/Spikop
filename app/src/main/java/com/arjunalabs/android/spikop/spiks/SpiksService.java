@@ -32,7 +32,7 @@ public class SpiksService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        spikRepository = ((SpikApplication)getApplication()).getSpikRepository();
+        spikRepository = ((SpikApplication) getApplication()).getSpikRepository();
     }
 
     @Nullable
@@ -66,28 +66,29 @@ public class SpiksService extends Service {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Observer<List<Spik>>() {
-                    @Override
-                    public void onCompleted() {
+                            @Override
+                            public void onCompleted() {
+                                isRunning = false;
+                                stopSelf();
+                            }
 
-                    }
+                            @Override
+                            public void onError(Throwable e) {
+                                TransactionManager.saveTimelineTransactionStatus(SpiksService.this, false);
 
-                    @Override
-                    public void onError(Throwable e) {
+                                LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
+                            }
 
-                    }
+                            @Override
+                            public void onNext(List<Spik> spiks) {
+                                TransactionManager.saveTimelineTransactionStatus(SpiksService.this, false);
+                                if (spiks != null) {
+                                    TransactionManager.saveTimelineLastRemoteId(SpiksService.this, spiks.get(0).getRemoteId());
+                                }
 
-                    @Override
-                    public void onNext(List<Spik> spiks) {
-                        TransactionManager.saveTimelineTransactionStatus(SpiksService.this, false);
-                        if (spiks != null) {
-                            TransactionManager.saveTimelineLastRemoteId(SpiksService.this, spiks.get(0).getRemoteId());
-                        }
-
-                        LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
-                        isRunning = false;
-                        stopSelf();
-                    }
-                });
+                                LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
+                            }
+                        });
                 return null;
             }
         })
