@@ -19,6 +19,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -61,52 +62,37 @@ public class SpikaddService extends Service {
         Observable.from(stringQueue)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<String>() {
+                .flatMap(new Func1<String, Observable<Spik>>() {
+                    @Override
+                    public Observable<Spik> call(String s) {
+                        Spik spik = new Spik();
+                        spik.setContent(s);
+                        return spikRepository.addSpik(spik, false);
+                    }
+                })
+                .subscribe(new Observer<Spik>() {
                     @Override
                     public void onCompleted() {
+                        Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
+                        LocalBroadcastManager.getInstance(SpikaddService.this).sendBroadcast(i);
                         isRunning = false;
                         stopSelf();
                     }
 
                     @Override
                     public void onError(Throwable e) {
+                        Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
+                        LocalBroadcastManager.getInstance(SpikaddService.this).sendBroadcast(i);
                         isRunning = false;
                         stopSelf();
                     }
 
                     @Override
-                    public void onNext(String s) {
-                        Spik spik = new Spik();
-                        spik.setContent(stringQueue.peek());
-                        spikRepository.addSpik(spik, false)
-                                .subscribe(new Observer<Spik>() {
-                                    @Override
-                                    public void onCompleted() {
-                                        Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
-                                        LocalBroadcastManager.getInstance(SpikaddService.this).sendBroadcast(i);
-                                        stringQueue.remove();
-                                        isRunning = false;
-                                        stopSelf();
-                                    }
-
-                                    @Override
-                                    public void onError(Throwable e) {
-                                        Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
-                                        LocalBroadcastManager.getInstance(SpikaddService.this).sendBroadcast(i);
-                                        stringQueue.remove();
-                                        isRunning = false;
-                                        stopSelf();
-                                    }
-
-                                    @Override
-                                    public void onNext(Spik spik) {
-                                        Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
-                                        LocalBroadcastManager.getInstance(SpikaddService.this).sendBroadcast(i);
-                                        stringQueue.remove();
-                                    }
-                                });
+                    public void onNext(Spik spik) {
+                        if (stringQueue != null) {
+                            stringQueue.poll();
+                        }
                     }
                 });
-
     }
 }
