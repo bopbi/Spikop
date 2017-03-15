@@ -23,6 +23,7 @@ public class SpikaddActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add);
 
         setTitle(R.string.title_activity_spikadd);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         spikaddView = (SpikaddView) findViewById(R.id.spikadd_view);
         spikaddPresenter = new SpikaddPresenter(((SpikApplication)getApplication()).getSpikRepository(), spikaddView);

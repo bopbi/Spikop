@@ -3,6 +3,8 @@ package com.arjunalabs.android.spikop.following;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.arjunalabs.android.spikop.R;
 import com.arjunalabs.android.spikop.SpikApplication;
@@ -23,6 +25,7 @@ public class FollowingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_following);
 
         setTitle(R.string.title_activity_following);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         followingView = (FollowingView) findViewById(R.id.following_view);
         followingPresenter = new FollowingPresenter(((SpikApplication)getApplication()).getSpikRepository(), followingView);
@@ -34,5 +37,10 @@ public class FollowingActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         followingView.start();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
     }
 }

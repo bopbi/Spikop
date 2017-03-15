@@ -48,6 +48,14 @@ public class FollowingView extends SwipeRefreshLayout implements FollowingContra
         followingRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         followingAdapter = new FollowingAdapter();
         followingRecyclerView.setAdapter(followingAdapter);
+
+        setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                setRefreshing(true);
+                followingPresenter.fetchFollowingList();
+            }
+        });
     }
 
     @Override
@@ -59,10 +67,12 @@ public class FollowingView extends SwipeRefreshLayout implements FollowingContra
     public void setFollowingList(List<Hashtag> hashtags) {
         this.hashtags = hashtags;
         followingAdapter.notifyDataSetChanged();
+        setRefreshing(false);
     }
 
     @Override
     public void start() {
+        setRefreshing(true);
         followingPresenter.start();
     }
 
