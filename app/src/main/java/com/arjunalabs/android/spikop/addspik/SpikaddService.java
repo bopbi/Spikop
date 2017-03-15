@@ -17,6 +17,7 @@ import java.util.concurrent.Callable;
 
 import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -63,12 +64,14 @@ public class SpikaddService extends Service {
                 .subscribe(new Observer<String>() {
                     @Override
                     public void onCompleted() {
-
+                        isRunning = false;
+                        stopSelf();
                     }
 
                     @Override
                     public void onError(Throwable e) {
-
+                        isRunning = false;
+                        stopSelf();
                     }
 
                     @Override
@@ -79,6 +82,9 @@ public class SpikaddService extends Service {
                                 .subscribe(new Observer<Spik>() {
                                     @Override
                                     public void onCompleted() {
+                                        Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
+                                        LocalBroadcastManager.getInstance(SpikaddService.this).sendBroadcast(i);
+                                        stringQueue.remove();
                                         isRunning = false;
                                         stopSelf();
                                     }
@@ -88,6 +94,8 @@ public class SpikaddService extends Service {
                                         Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
                                         LocalBroadcastManager.getInstance(SpikaddService.this).sendBroadcast(i);
                                         stringQueue.remove();
+                                        isRunning = false;
+                                        stopSelf();
                                     }
 
                                     @Override

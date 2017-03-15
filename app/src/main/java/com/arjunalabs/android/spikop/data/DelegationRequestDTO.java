@@ -8,7 +8,7 @@ public class DelegationRequestDTO {
 
     private String client_id;
     private String grant_type = "urn:ietf:params:oauth:grant-type:jwt-bearer";
-    private String id_token;
+    private String refresh_token;
     private String scope = "openId";
     private String api_type;
 
@@ -28,14 +28,6 @@ public class DelegationRequestDTO {
         this.grant_type = grant_type;
     }
 
-    public String getId_token() {
-        return id_token;
-    }
-
-    public void setId_token(String id_token) {
-        this.id_token = id_token;
-    }
-
     public String getScope() {
         return scope;
     }
@@ -50,5 +42,13 @@ public class DelegationRequestDTO {
 
     public void setApi_type(String api_type) {
         this.api_type = api_type;
+    }
+
+    public String getRefresh_token() {
+        return refresh_token;
+    }
+
+    public void setRefresh_token(String refresh_token) {
+        this.refresh_token = refresh_token;
     }
 }

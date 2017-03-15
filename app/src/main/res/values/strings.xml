@@ -1,5 +1,6 @@
 <resources>
 
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_spiks">Home</string>
+    <string name="title_activity_spikadd">Post Spik</string>
     <string name="auth0_preferences">Auth0Pref</string>
 </resources>

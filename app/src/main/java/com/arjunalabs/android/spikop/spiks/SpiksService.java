@@ -53,47 +53,41 @@ public class SpiksService extends Service {
     }
 
     private void fetchTimeline() {
-        Observable.fromCallable(new Func0<Void>() {
-            @Override
-            public Void call() {
-                TransactionManager.saveTimelineTransactionStatus(SpiksService.this, true);
-                final Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
+        TransactionManager.saveTimelineTransactionStatus(SpiksService.this, true);
+        final Intent i = new Intent(Constant.INTENT_UPDATE_TIMELINE);
 
-                LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
+        LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
 
-                long lastId = TransactionManager.getTimelineLastRemoteId(SpiksService.this);
-                spikRepository.getAllSpiks(true, lastId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<List<Spik>>() {
-                            @Override
-                            public void onCompleted() {
-                                isRunning = false;
-                                stopSelf();
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                TransactionManager.saveTimelineTransactionStatus(SpiksService.this, false);
-
-                                LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
-                            }
-
-                            @Override
-                            public void onNext(List<Spik> spiks) {
-                                TransactionManager.saveTimelineTransactionStatus(SpiksService.this, false);
-                                if (spiks != null) {
-                                    TransactionManager.saveTimelineLastRemoteId(SpiksService.this, spiks.get(0).getRemoteId());
-                                }
-
-                                LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
-                            }
-                        });
-                return null;
-            }
-        })
+        long lastId = TransactionManager.getTimelineLastRemoteId(SpiksService.this);
+        spikRepository.getAllSpiks(true, lastId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();
+                .subscribe(new Observer<List<Spik>>() {
+                    @Override
+                    public void onCompleted() {
+                        TransactionManager.saveTimelineTransactionStatus(SpiksService.this, false);
+                        LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
+                        isRunning = false;
+                        stopSelf();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        TransactionManager.saveTimelineTransactionStatus(SpiksService.this, false);
+                        LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
+                        isRunning = false;
+                        stopSelf();
+                    }
+
+                    @Override
+                    public void onNext(List<Spik> spiks) {
+                        TransactionManager.saveTimelineTransactionStatus(SpiksService.this, false);
+                        if (spiks != null) {
+                            TransactionManager.saveTimelineLastRemoteId(SpiksService.this, spiks.get(0).getRemoteId());
+                        }
+
+                        LocalBroadcastManager.getInstance(SpiksService.this).sendBroadcast(i);
+                    }
+                });
     }
 }

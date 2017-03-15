@@ -7,6 +7,7 @@ import com.arjunalabs.android.spikop.data.DelegationRequestDTO;
 import com.arjunalabs.android.spikop.data.remote.SpikListResponseDTO;
 import com.arjunalabs.android.spikop.data.local.CredentialsManager;
 import com.arjunalabs.android.spikop.data.remote.SpikResponseDTO;
+import com.arjunalabs.android.spikop.data.remote.TagsListResponseDTO;
 import com.auth0.android.result.Credentials;
 import com.auth0.android.result.Delegation;
 import com.google.gson.Gson;
@@ -14,7 +15,6 @@ import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.Proxy;
 
 import okhttp3.Authenticator;
 import okhttp3.Interceptor;
@@ -47,8 +47,23 @@ public class NetworkAuthService {
         @POST("api/spiks")
         Observable<SpikResponseDTO> addSpik(@Field("content") String content);
 
+        @GET("api/hashtags")
+        Observable<TagsListResponseDTO> getHashtags();
+
+        @GET("api/following")
+        Observable<TagsListResponseDTO> getFollowing();
+
+        @FormUrlEncoded
+        @POST("api/following")
+        Observable<String> addFollow(@Field("hashtag_id") long hashtagId);
+
         @GET("api/timeline")
         Observable<SpikListResponseDTO> getTimeline(@Query("since_id") long sinceId);
+
+        @FormUrlEncoded
+        @POST("api/unfollow")
+        Observable<String> removeFollow(@Field("hashtag_id") long hashtagId);
+
     }
 
     /*
@@ -70,6 +85,8 @@ public class NetworkAuthService {
         @Override
         public Request authenticate(Route route, Response response) throws IOException {
 
+            credentials = CredentialsManager.getCredentials(context);
+
             MediaType JSON
                     = MediaType.parse("application/json; charset=utf-8");
 
@@ -78,7 +95,7 @@ public class NetworkAuthService {
             DelegationRequestDTO delegationRequestDto = new DelegationRequestDTO();
             delegationRequestDto.setClient_id(clientId);
             delegationRequestDto.setApi_type(credentials.getType());
-            delegationRequestDto.setId_token(credentials.getIdToken());
+            delegationRequestDto.setRefresh_token(credentials.getRefreshToken());
 
             Gson gson = new Gson();
             String json = gson.toJson(delegationRequestDto, DelegationRequestDTO.class);
@@ -89,6 +106,11 @@ public class NetworkAuthService {
                     .post(body)
                     .build();
             Response tokenResponse = client.newCall(tokenRequest).execute();
+
+            if (tokenResponse.code() != HttpURLConnection.HTTP_OK) {
+                return null;
+            }
+
             String res = tokenResponse.body().string();
 
             Delegation delegation = gson.fromJson(res, Delegation.class);
