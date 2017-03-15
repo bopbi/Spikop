@@ -89,9 +89,7 @@ public class SpikaddService extends Service {
 
                     @Override
                     public void onNext(Spik spik) {
-                        if (stringQueue != null) {
-                            stringQueue.poll();
-                        }
+
                     }
                 });
     }
