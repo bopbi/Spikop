@@ -14,6 +14,8 @@ public interface SpikDataSource {
 
     Observable<List<Hashtag>> getAllHashtags();
 
+    Observable<List<Hashtag>> getFollowingHashtags();
+
     Observable<Spik> getSpikById(long id);
 
     Observable<List<Spik>> addSpiks(List<Spik> spikList, boolean fromTimeline);

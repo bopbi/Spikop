@@ -2,5 +2,11 @@
 
     <string name="title_activity_spiks">Home</string>
     <string name="title_activity_spikadd">Post Spik</string>
+    <string name="title_activity_following">Following</string>
     <string name="auth0_preferences">Auth0Pref</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
 </resources>

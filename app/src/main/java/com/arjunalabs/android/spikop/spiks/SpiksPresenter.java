@@ -28,25 +28,7 @@ public class SpiksPresenter implements SpiksContract.Presenter {
 
     @Override
     public void start() {
-        getTimeline()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<Spik>>() {
-            @Override
-            public void onCompleted() {
-
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onNext(List<Spik> spiks) {
-                spikView.setSpiksList(spiks);
-            }
-        });
+        loadLocalTimeline();
     }
 
     @Override
@@ -60,8 +42,26 @@ public class SpiksPresenter implements SpiksContract.Presenter {
     }
 
     @Override
-    public Observable<List<Spik>> getTimeline() {
-        return spikRepository.getAllSpiks(false, 0); // get all
+    public void loadLocalTimeline() {
+        spikRepository.getAllSpiks(false, 0) // get all
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<Spik>>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<Spik> spiks) {
+                        spikView.setSpiksList(spiks);
+                    }
+                });
     }
 
     @Override

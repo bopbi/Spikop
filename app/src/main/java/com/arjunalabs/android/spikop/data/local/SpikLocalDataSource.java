@@ -98,6 +98,11 @@ public class SpikLocalDataSource implements SpikDataSource {
     }
 
     @Override
+    public Observable<List<Hashtag>> getFollowingHashtags() {
+        return null;
+    }
+
+    @Override
     public Observable<Spik> getSpikById(long id) {
         return null;
     }

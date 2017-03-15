@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import com.arjunalabs.android.spikop.R;
-import com.arjunalabs.android.spikop.spiks.SpiksActivity;
 import com.arjunalabs.android.spikop.data.local.CredentialsManager;
+import com.arjunalabs.android.spikop.spiks.SpiksActivity;
 import com.auth0.android.Auth0;
 import com.auth0.android.authentication.AuthenticationAPIClient;
 import com.auth0.android.lock.AuthenticationCallback;

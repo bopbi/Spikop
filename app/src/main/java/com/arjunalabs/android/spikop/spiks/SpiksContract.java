@@ -31,7 +31,7 @@ public interface SpiksContract {
 
         void fetchTimeline();
 
-        Observable<List<Spik>> getTimeline();
+        void loadLocalTimeline();
 
         boolean getTimelineFetchStatus();
     }

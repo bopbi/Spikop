@@ -8,13 +8,13 @@ import java.util.List;
 
 public class TagsListResponseDTO {
 
-    private List<String> hashtags;
+    private List<TagResponseDTO> hashtags;
 
-    public List<String> getHashtags() {
+    public List<TagResponseDTO> getHashtags() {
         return hashtags;
     }
 
-    public void setHashtags(List<String> hashtags) {
+    public void setHashtags(List<TagResponseDTO> hashtags) {
         this.hashtags = hashtags;
     }
 }

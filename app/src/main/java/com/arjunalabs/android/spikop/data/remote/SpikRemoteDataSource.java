@@ -14,6 +14,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Response;
 import rx.Observable;
+import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
@@ -71,6 +72,27 @@ public class SpikRemoteDataSource implements SpikDataSource {
     @Override
     public Observable<List<Hashtag>> getAllHashtags() {
         return null;
+    }
+
+    @Override
+    public Observable<List<Hashtag>> getFollowingHashtags() {
+        return networkAuthService.getSpikopService()
+                .getFollowing()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(new Func1<TagsListResponseDTO, List<Hashtag>>() {
+            @Override
+            public List<Hashtag> call(TagsListResponseDTO tagsListResponseDTO) {
+                List<Hashtag> hashtags = new ArrayList<Hashtag>(tagsListResponseDTO.getHashtags().size());
+
+                for (TagResponseDTO tagResponseDTO: tagsListResponseDTO.getHashtags()) {
+                    Hashtag hashtag = new Hashtag(tagResponseDTO);
+                    hashtags.add(hashtag);
+                }
+
+                return hashtags;
+            }
+        });
     }
 
     @Override

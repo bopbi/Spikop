@@ -57,6 +57,11 @@ public class SpikRepository implements SpikDataSource {
     }
 
     @Override
+    public Observable<List<Hashtag>> getFollowingHashtags() {
+        return remoteSpikDataSource.getFollowingHashtags();
+    }
+
+    @Override
     public Observable<Spik> getSpikById(long id) {
         return null;
     }
