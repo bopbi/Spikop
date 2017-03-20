@@ -3,6 +3,7 @@ package com.arjunalabs.android.spikop.addspik;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 
 import com.arjunalabs.android.spikop.R;
 import com.arjunalabs.android.spikop.SpikApplication;
@@ -27,5 +28,17 @@ public class SpikaddActivity extends AppCompatActivity {
 
         spikaddView = (SpikaddView) findViewById(R.id.spikadd_view);
         spikaddPresenter = new SpikaddPresenter(((SpikApplication)getApplication()).getSpikRepository(), spikaddView);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

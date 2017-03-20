@@ -2,6 +2,7 @@
 
     <string name="title_activity_spiks">Home</string>
     <string name="title_activity_spikadd">Post Spik</string>
+    <string name="title_activity_tag_search">Search Tag</string>
     <string name="title_activity_following">Following</string>
     <string name="auth0_preferences">Auth0Pref</string>
 

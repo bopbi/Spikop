@@ -104,7 +104,7 @@ public class SpiksActivity extends AppCompatActivity
             // Handle the camera action
             Intent followingIntent = new Intent(this, FollowingActivity.class);
             startActivity(followingIntent);
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_tag_search) {
 
         } else if (id == R.id.nav_slideshow) {
 
