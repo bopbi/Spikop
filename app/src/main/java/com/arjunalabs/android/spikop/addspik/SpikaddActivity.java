@@ -28,6 +28,7 @@ public class SpikaddActivity extends AppCompatActivity {
 
         spikaddView = (SpikaddView) findViewById(R.id.spikadd_view);
         spikaddPresenter = new SpikaddPresenter(((SpikApplication)getApplication()).getSpikRepository(), spikaddView);
+        spikaddView.setPresenter(spikaddPresenter);
     }
 
     @Override

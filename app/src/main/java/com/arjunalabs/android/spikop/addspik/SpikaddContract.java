@@ -13,10 +13,14 @@ public interface SpikaddContract {
 
         void onSendButtonClick();
 
+        void startSendSpikService(String spik);
+
+        void close();
     }
 
     interface Presenter extends BasePresenter {
 
+        void sendSpik(String spik);
 
     }
 }

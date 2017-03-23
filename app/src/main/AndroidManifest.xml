@@ -57,7 +57,8 @@
             android:name=".spiks.SpiksActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".following.FollowingActivity" />
-        <activity android:name=".tagsearch.TagSearchActivity"></activity>
+        <activity android:name=".tagsearch.TagSearchActivity" />
+        <activity android:name=".settings.SettingsActivity" />
     </application>
 
 </manifest>

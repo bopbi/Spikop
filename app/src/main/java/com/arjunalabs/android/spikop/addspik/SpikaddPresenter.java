@@ -25,4 +25,10 @@ public class SpikaddPresenter implements SpikaddContract.Presenter {
     public void end() {
 
     }
+
+    @Override
+    public void sendSpik(String spik) {
+        spikaddView.startSendSpikService(spik);
+        spikaddView.close();
+    }
 }

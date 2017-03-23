@@ -20,6 +20,7 @@ public class SpikaddView extends LinearLayout implements SpikaddContract.View {
 
     private EditText editTextSpik;
     private Button buttonSendSpik;
+    private SpikaddContract.Presenter presenter;
 
     public SpikaddView(Context context) {
         super(context);
@@ -49,15 +50,23 @@ public class SpikaddView extends LinearLayout implements SpikaddContract.View {
 
     @Override
     public void setPresenter(SpikaddContract.Presenter presenter) {
-
+        this.presenter = presenter;
     }
 
     @Override
     public void onSendButtonClick() {
+        presenter.sendSpik(editTextSpik.getText().toString());
+    }
+
+    @Override
+    public void startSendSpikService(String spik) {
         Intent addSpikIntent = new Intent(getContext(), SpikaddService.class);
         addSpikIntent.putExtra(Constant.INTENT_VALUE_ADD_SPIK, editTextSpik.getText().toString());
         getContext().startService(addSpikIntent);
+    }
 
+    @Override
+    public void close() {
         if (getContext() instanceof Activity) {
             ((Activity)getContext()).finish();
         }
