@@ -1,9 +1,6 @@
 package com.arjunalabs.android.spikop.spiks;
 
-import android.app.Service;
 import android.content.Intent;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.arjunalabs.android.spikop.SpikApplication;
@@ -11,20 +8,20 @@ import com.arjunalabs.android.spikop.data.Spik;
 import com.arjunalabs.android.spikop.data.SpikRepository;
 import com.arjunalabs.android.spikop.data.local.TransactionManager;
 import com.arjunalabs.android.spikop.utils.Constant;
+import com.firebase.jobdispatcher.JobParameters;
+import com.firebase.jobdispatcher.JobService;
 
 import java.util.List;
 
-import rx.Observable;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func0;
 import rx.schedulers.Schedulers;
 
 /**
  * Created by bobbyadiprabowo on 19/02/17.
  */
 
-public class SpiksService extends Service {
+public class SpiksService extends JobService {
 
     private SpikRepository spikRepository;
     private boolean isRunning = false;
@@ -35,21 +32,18 @@ public class SpiksService extends Service {
         spikRepository = ((SpikApplication) getApplication()).getSpikRepository();
     }
 
-    @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
-
+    public boolean onStartJob(JobParameters job) {
         if (!isRunning) {
             isRunning = true;
             fetchTimeline();
         }
-        return Service.START_STICKY;
+        return true;
+    }
+
+    @Override
+    public boolean onStopJob(JobParameters job) {
+        return false;
     }
 
     private void fetchTimeline() {

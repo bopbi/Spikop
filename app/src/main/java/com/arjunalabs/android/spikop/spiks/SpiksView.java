@@ -18,6 +18,13 @@ import com.arjunalabs.android.spikop.R;
 import com.arjunalabs.android.spikop.addspik.SpikaddActivity;
 import com.arjunalabs.android.spikop.data.Spik;
 import com.arjunalabs.android.spikop.data.local.TransactionManager;
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.RetryStrategy;
+import com.firebase.jobdispatcher.Trigger;
 
 import java.util.List;
 
@@ -87,8 +94,30 @@ public class SpiksView extends SwipeRefreshLayout implements SpiksContract.View 
 
     @Override
     public void runFetchService() {
-        Intent fetchIntent = new Intent(getContext(), SpiksService.class);
-        getContext().startService(fetchIntent);
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(getContext()));
+        Job myJob = dispatcher.newJobBuilder()
+                // the JobService that will be called
+                .setService(SpiksService.class)
+                // uniquely identifies the job
+                .setTag("spikservice")
+                // one-off job
+                .setRecurring(false)
+                // don't persist past a device reboot
+                .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
+                // start right away
+                .setTrigger(Trigger.NOW)
+                // don't overwrite an existing job with the same tag
+                .setReplaceCurrent(false)
+                // retry with exponential backoff
+                .setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
+                // constraints that need to be satisfied for the job to run
+                .setConstraints(
+                        // only run on an unmetered network
+                        Constraint.ON_ANY_NETWORK
+                )
+                .build();
+
+        dispatcher.mustSchedule(myJob);
     }
 
     @Override
